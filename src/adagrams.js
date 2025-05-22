@@ -1,4 +1,4 @@
-const LETTER_POOL = {
+const LETTER_POOL_PER_GAME = {
   A: 9, B: 2, C: 2, D: 4, E: 12, F: 2, G: 3, H: 2,
   I: 9, J: 1, K: 1, L: 4, M: 2, N: 6, O: 8, P: 2,
   Q: 1, R: 6, S: 4, T: 6, U: 4, V: 2, W: 2, X: 1,
@@ -12,19 +12,23 @@ const LETTER_SCORES = {
   Y: 4, Z: 10
 };
 
+const BONUS_MIN_LENGTH = 7;
+const LENGTH_BONUS_POINTS = 8;
+const HAND_SIZE = 10;
+
 export const drawLetters = () => {
   const letterPool = [];
 
-  for (const [letter, count] of Object.entries(LETTER_POOL)) {
+  for (const [letter, count] of Object.entries(LETTER_POOL_PER_GAME)) {
     for (let i = 0; i < count; i++) {
       letterPool.push(letter);
     }
   }
 
   const letterBank = [];
-  const availableLetters = {...LETTER_POOL};
+  const availableLetters = {...LETTER_POOL_PER_GAME};
 
-  while (letterBank.length < 10) {
+  while (letterBank.length < HAND_SIZE) {
     const randomIndex = Math.floor(Math.random() * letterPool.length);
     const letter = letterPool[randomIndex];
 
@@ -38,7 +42,6 @@ export const drawLetters = () => {
 };
 
 export const usesAvailableLetters = (input, lettersInHand) => {
-  // Implement this method for wave 2
   input = input.toUpperCase();
   lettersInHand = lettersInHand.map(letter => letter.toUpperCase());
 
@@ -85,13 +88,32 @@ export const scoreWord = (word) => {
     }
   }
 
-  if (word.length >= 7) {
-    totalPoints += 8;
+  if (word.length >= BONUS_MIN_LENGTH) {
+    totalPoints += LENGTH_BONUS_POINTS;
   }
 
   return totalPoints;
 };
 
 export const highestScoreFrom = (words) => {
-  // Implement this method for wave 4
+  let highestScore = 0;
+  let bestWord = ''
+
+  for (const word of words) {
+    const score = scoreWord(word);
+    if (score > highestScore) {
+      bestWord = word;
+      highestScore = score;
+    } else if (score === highestScore && bestWord.length !== HAND_SIZE) {
+        if (word.length === HAND_SIZE) {
+          bestWord = word;
+        } else if (word.length < bestWord.length) {
+          bestWord = word;
+        }
+    }
+  }
+  return {
+    word: bestWord,
+    score: highestScore
+  }
 };
